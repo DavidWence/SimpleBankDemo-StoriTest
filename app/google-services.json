@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "955478138952",
+    "project_id": "simplebanking-storitest",
+    "storage_bucket": "simplebanking-storitest.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955478138952:android:661716f69333363d11787d",
+        "android_client_info": {
+          "package_name": "com.example.simplebankingapp_storitest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955478138952-8vhrjnouchacfc5q5hnaa8l4cttqf2oa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKJMktCQLidI4P4Zp6NiKt751v5niWhzU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955478138952-8vhrjnouchacfc5q5hnaa8l4cttqf2oa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

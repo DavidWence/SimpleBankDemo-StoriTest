@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Simple Banking App - Stori Test</string>
+
+    <!-- login -->
+    <string name="login_title">Bienvenido a DemoBank</string>
+    <string name="login_subtitle">Iniciar sesión</string>
+    <string name="login_user">Usuario</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_cd_hidepassword">Ocultar contraseña</string>
+    <string name="login_cd_showpassword">Mostrar contraseña</string>
+    <string name="login_action_enter">Entrar</string>
+    <string name="login_label_noaccount">¿No tienes cuenta?</string>
+    <string name="login_action_register">Regístrate</string>
+
+    <!-- errores -->
+    <string name="error_generic">Error desconocido</string>
+    <string name="error_noemail">Introduce tu correo</string>
+    <string name="error_invalidemail">Introduce un correo válido</string>
+    <string name="error_nopassword">Introduce tu contraseña</string>
+    <string name="error_usernotfound">Usuario o contraseña incorrectos</string>
+    <string name="error_serverunavailable">Servicio no disponible, intenta de nuevo</string>
+</resources>
