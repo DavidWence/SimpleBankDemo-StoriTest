@@ -3,6 +3,7 @@ package com.example.simplebankingapp_storitest.presentation
 import android.app.Application
 import androidx.annotation.StringRes
 import com.example.simplebankingapp_storitest.data.dataModule
+import com.example.simplebankingapp_storitest.data.homeModule
 import com.example.simplebankingapp_storitest.data.loginModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -22,7 +23,7 @@ class App: Application() {
         //koin
         startKoin {
             androidContext(this@App)
-            modules(listOf(dataModule, loginModule))
+            modules(listOf(dataModule, loginModule, homeModule))
         }
     }
 

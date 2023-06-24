@@ -11,9 +11,9 @@ import com.example.simplebankingapp_storitest.domain.usecases.userinfo.ValidateP
 import com.example.simplebankingapp_storitest.presentation.utils.ProcessStep
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val validateEmailUseCase: ValidateEmail,
-                     private val validatePasswordUseCase: ValidatePassword,
-                     private val signInUseCase: SignIn):
+class SignInViewModel(private val validateEmailUseCase: ValidateEmail,
+                      private val validatePasswordUseCase: ValidatePassword,
+                      private val signInUseCase: SignIn):
     SimpleProcessViewModel() {
 
     private var user = ""
@@ -52,15 +52,11 @@ class LoginViewModel(private val validateEmailUseCase: ValidateEmail,
                 step.value = ProcessStep.Loading()
                 when (val result = signInUseCase(user, password)) {
                     is Outcome.Error -> step.value = ProcessStep.Error(result.description.asText())
-                    else -> {
+                    else ->
                         step.value = ProcessStep.Finished
-                        //se limpia para volver a la navegación
-                        step.value = null
-                    }
                 }
             }
         }
-
     }
 
 }

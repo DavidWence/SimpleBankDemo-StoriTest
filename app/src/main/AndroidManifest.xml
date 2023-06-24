@@ -14,7 +14,7 @@
         android:theme="@style/Theme.SimpleBankingAppStoriTest"
         tools:targetApi="31" >
 
-        <activity android:name=".presentation.ui.LoginActivity"
+        <activity android:name=".presentation.ui.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"

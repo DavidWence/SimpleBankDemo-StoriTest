@@ -1,6 +1,5 @@
 package com.example.simplebankingapp_storitest.presentation.ui.screens
 
-import android.app.Activity
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
 import android.widget.Toast
@@ -21,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,14 +48,16 @@ import com.example.simplebankingapp_storitest.presentation.ui.SubtitleText
 import com.example.simplebankingapp_storitest.presentation.ui.TitleText
 import com.example.simplebankingapp_storitest.presentation.ui.theme.SimpleBankingAppTheme
 import com.example.simplebankingapp_storitest.presentation.utils.ProcessStep
-import com.example.simplebankingapp_storitest.presentation.viewmodel.LoginViewModel
+import com.example.simplebankingapp_storitest.presentation.viewmodel.SignInViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel = koinViewModel()){
+fun SignInScreen(signInViewModel: SignInViewModel = koinViewModel(),
+                 onSignUpButtonClicked: () -> Unit = {},
+                 onSignInCompleted: () -> Unit = {}) {
     //se observa el estado de carga
     var isLoading by rememberSaveable { mutableStateOf(false) }
-    val currentStep = loginViewModel.stepData.observeAsState()
+    val currentStep = signInViewModel.stepData.observeAsState()
     when(val step = currentStep.value){
         is ProcessStep.Loading -> isLoading = true
         is ProcessStep.Error -> {
@@ -66,14 +66,14 @@ fun LoginScreen(loginViewModel: LoginViewModel = koinViewModel()){
         }
         is ProcessStep.Finished -> {
             isLoading = false
-            (LocalContext.current as Activity).finish()
+            onSignInCompleted()
         }
         else -> Log.d("STEP", "step ${step?.toString()}: NO ACTION REQUIRED")
     }
 
     //se observan los errores de validación
-    val userError = loginViewModel.userErrorData.observeAsState()
-    val passwordError = loginViewModel.passwordErrorData.observeAsState()
+    val userError = signInViewModel.userErrorData.observeAsState()
+    val passwordError = signInViewModel.passwordErrorData.observeAsState()
 
     Box {
         Column(
@@ -83,17 +83,21 @@ fun LoginScreen(loginViewModel: LoginViewModel = koinViewModel()){
             TitleText(R.string.login_title)
             SubtitleText(R.string.login_subtitle)
             UserInputField(
-                onUserChanged = { loginViewModel.updateUser(it) },
+                onUserChanged = { signInViewModel.updateUser(it) },
                 errorMessage = userError.value
             )
             PasswordInputField(
-                onPasswordChanged = { loginViewModel.updatePassword(it) },
-                onKeyboardDone = { loginViewModel.login() },
+                onPasswordChanged = { signInViewModel.updatePassword(it) },
+                onKeyboardDone = { signInViewModel.login() },
                 errorMessage = passwordError.value
             )
-            EnterButton(currentStep.value?.uiEnabled ?: true) { loginViewModel.login() }
+            EnterButton(currentStep.value?.uiEnabled ?: true) { signInViewModel.login() }
             LabelText(R.string.login_label_noaccount, 36)
-            RegisterButton()
+            //botón de registro
+            TextButton(
+                onClick = { onSignUpButtonClicked() }) {
+                Text(stringResource(R.string.login_action_register))
+            }
         }
         if(isLoading)
             LoaderFullscreen()
@@ -113,7 +117,7 @@ fun UserInputField(onUserChanged: (String) -> Unit,
         onValueChange = {
             user = it
             onUserChanged(it) },
-        label = { Text(stringResource(R.string.login_user)) },
+        label = { Text(stringResource(R.string.login_field_user)) },
         //mensaje de error
         isError = !errorMessage.isNullOrEmpty(),
         supportingText = {
@@ -147,7 +151,7 @@ fun PasswordInputField(onPasswordChanged: (String) -> Unit,
         onValueChange = {
             password = it
             onPasswordChanged(it) },
-        label = { Text(stringResource(R.string.login_password)) },
+        label = { Text(stringResource(R.string.login_field_password)) },
         //mensaje de error
         isError = !errorMessage.isNullOrEmpty(),
         supportingText = {
@@ -199,24 +203,11 @@ fun EnterButton(enabled: Boolean, onSubmitUser: () -> Unit){
     }
 }
 
-@Composable
-fun RegisterButton(){
-    TextButton(
-        onClick = { }) {
-        Text(stringResource(R.string.login_action_register))
-    }
-}
-
 @Preview(showBackground = true, name = "Light")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dark")
 @Composable
-fun DefaultPreview() {
+fun SignInPreview() {
     SimpleBankingAppTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            LoginScreen()
-        }
+        SignInScreen()
     }
 }

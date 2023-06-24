@@ -9,6 +9,14 @@ sealed class Outcome<out T> {
     val value: T? get() = if(this is Success) data else null
 }
 
+//extensiones para resultados (Outcome.kt)
+fun <T> T?.asOutcome(descriptionIfError: ErrorDescription = ErrorDescription.UnknownError): Outcome<T> {
+    return if (this != null)
+        Outcome.Success(this)
+    else
+        Outcome.Error(descriptionIfError)
+}
+
 fun areAllOutcomesValids(vararg outcomes: Outcome<Any>): Boolean {
     for (outcome in outcomes)
         if (outcome is Outcome.Error)
