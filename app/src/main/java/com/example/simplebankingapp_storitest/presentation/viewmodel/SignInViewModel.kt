@@ -8,12 +8,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.simplebankingapp_storitest.domain.entities.Outcome
 import com.example.simplebankingapp_storitest.domain.entities.areAllOutcomesValids
+import com.example.simplebankingapp_storitest.domain.usecases.ValidateEmail
+import com.example.simplebankingapp_storitest.domain.usecases.ValidatePassword
 import com.example.simplebankingapp_storitest.domain.usecases.configuration.GetPreviousSession
 import com.example.simplebankingapp_storitest.domain.usecases.user.GetEmail
 import com.example.simplebankingapp_storitest.domain.usecases.user.GetName
 import com.example.simplebankingapp_storitest.domain.usecases.user.SignIn
-import com.example.simplebankingapp_storitest.domain.usecases.userinfo.ValidateEmail
-import com.example.simplebankingapp_storitest.domain.usecases.userinfo.ValidatePassword
 import com.example.simplebankingapp_storitest.presentation.utils.UiState
 import kotlinx.coroutines.launch
 
@@ -52,6 +52,7 @@ class SignInViewModel(private val getPreviousSessionUseCase: GetPreviousSession,
         }
     }
 
+    //actualizaciones de campos de entrada
     fun updateUser(user: String){
         inputUser = user
     }
@@ -60,8 +61,9 @@ class SignInViewModel(private val getPreviousSessionUseCase: GetPreviousSession,
         inputPassword = password
     }
 
+    //inicio de sesión
     fun login(){
-        //se empiezan evaluando las precondiciones
+        //se evalúan las precondiciones
         uiState.value = UiState.EvaluatingPreconditions
         val validEmail = validateEmailUseCase(inputUser)
         val validPassword = validatePasswordUseCase(inputPassword)

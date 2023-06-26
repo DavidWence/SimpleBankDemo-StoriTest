@@ -5,5 +5,6 @@ import com.example.simplebankingapp_storitest.domain.entities.user.UserInfo
 
 interface UsersRepository {
     suspend fun signIn(email: String, password: String): Outcome<UserInfo>
+    suspend fun validateEmail(email: String): Outcome<Nothing>
 
 }

@@ -2,33 +2,50 @@
     <string name="app_name">Simple Banking App - Stori Test</string>
 
     <!-- inicio de sesión -->
-    <string name="login_title">Bienvenido a DemoBank</string>
+    <string name="login_title">Bienvenido a SimpleBank</string>
     <string name="login_label_subtitle">Iniciar sesión</string>
     <string name="login_label_welcomeback">Hola de nuevo, %1$s</string>
     <string name="login_field_user">Usuario</string>
-    <string name="login_field_password">Contraseña</string>
-    <string name="login_cd_hidepassword">Ocultar contraseña</string>
-    <string name="login_cd_showpassword">Mostrar contraseña</string>
     <string name="login_action_enter">Entrar</string>
     <string name="login_label_noaccount">¿No tienes cuenta?</string>
     <string name="login_action_register">Regístrate</string>
+    <string name="login_error_usernotfound">Usuario o contraseña incorrectos</string>
 
     <!-- registro -->
-    <string name="registry_title">Crea tu cuenta</string>
-    <string name="registry_label_subtitle">Introduce los siguientes datos para unirte a SimpleBank</string>
+    <string name="signup_userinfo_title">Crea tu cuenta</string>
+    <string name="signup_label_userinfo_subtitle">Introduce los siguientes datos para unirte a SimpleBank</string>
+    <string name="signup_field_name">Nombre</string>
+    <string name="signup_field_surname">Apellido(s)</string>
+    <string name="signup_field_repeatpassword">Repetir contraseña</string>
+    <string name="signup_error_noname">Introduce tu nombre</string>
+    <string name="signup_error_invalidname">Introduce un nombre válido</string>
+    <string name="signup_error_nosurname">Introduce tu apellido</string>
+    <string name="signup_error_invalidsurname">Introduce un apellido válido</string>
+    <string name="signup_error_norepeatpassword">Introduce de nuevo tu contraseña</string>
+    <string name="signup_error_repeatpasswordmismatch">Tu contraseña no coincide</string>
+    <string name="signup_error_existinguser">No se puede continuar con tu registro</string>
+    <string name="signup_photoid_title">Sube tu identificación oficial</string>
+    <string name="signup_label_photoid_subtitle">Para brindarte mayor seguridad requerimos que le tomes una fotografía a tu INE</string>
+    <string name="signup_action_takephoto">Tomar una foto</string>
+    <string name="signup_error_camerapermissionnotgranted">Acepta los permisos solicitados para continuar</string>
 
     <!-- home -->
     <string name="home_label_balance">Tu saldo</string>
 
     <!-- errores -->
-    <string name="error_generic">Error desconocido</string>
-    <string name="error_missingvalue">N/A</string>
     <string name="error_noemail">Introduce tu correo</string>
     <string name="error_invalidemail">Introduce un correo válido</string>
     <string name="error_nopassword">Introduce tu contraseña</string>
-    <string name="error_usernotfound">Usuario o contraseña incorrectos</string>
+    <string name="error_passwordminimumlenght">Tu contraseña debe tener mínimo 8 caracteres</string>
     <string name="error_serverunavailable">Servicio no disponible, intenta de nuevo</string>
 
-    <!-- errores -->
+    <!-- cadenas genéricas -->
+    <string name="generic_error_unknown">Error desconocido</string>
+    <string name="generic_error_missingvalue">N/A</string>
     <string name="generic_cd_backscreen">Pantalla anterior</string>
+    <string name="generic_field_email">Correo electrónico</string>
+    <string name="generic_field_password">Contraseña</string>
+    <string name="generic_cd_hidepassword">Ocultar contraseña</string>
+    <string name="generic_cd_showpassword">Mostrar contraseña</string>
+    <string name="generic_action_continue">Continuar</string>
 </resources>

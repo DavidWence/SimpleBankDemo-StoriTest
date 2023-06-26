@@ -34,4 +34,18 @@ class FirebaseUsersRepository(private val auth: FirebaseAuth,
             }
         }
 
+    override suspend fun validateEmail(email: String) =
+        try {
+            //si el usuario ya tiene métodos de registro por email significa que ya está registrado
+            val withRegistration =
+                ((auth.fetchSignInMethodsForEmail(email).await().signInMethods?.size ?: 0) > 0)
+            if(withRegistration)
+                Outcome.Error(ErrorDescription.UserAlreadyRegistered)
+            else
+                Outcome.Completed
+        } catch (e: Exception){
+            e.printStackTrace()
+            Outcome.Error(ErrorDescription.UnknownError)
+        }
+
 }

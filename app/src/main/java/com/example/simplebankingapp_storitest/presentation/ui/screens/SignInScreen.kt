@@ -4,22 +4,9 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -31,28 +18,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.simplebankingapp_storitest.R
+import com.example.simplebankingapp_storitest.presentation.ui.ActionButton
+import com.example.simplebankingapp_storitest.presentation.ui.EmailInputField
+import com.example.simplebankingapp_storitest.presentation.ui.HeaderText
 import com.example.simplebankingapp_storitest.presentation.ui.LabelText
 import com.example.simplebankingapp_storitest.presentation.ui.LoaderFullscreen
-import com.example.simplebankingapp_storitest.presentation.ui.SubtitleText
+import com.example.simplebankingapp_storitest.presentation.ui.PasswordInputField
 import com.example.simplebankingapp_storitest.presentation.ui.TitleText
-import com.example.simplebankingapp_storitest.presentation.ui.EmailInputField
 import com.example.simplebankingapp_storitest.presentation.ui.theme.SimpleBankingAppTheme
 import com.example.simplebankingapp_storitest.presentation.utils.UiState
 import com.example.simplebankingapp_storitest.presentation.viewmodel.SignInViewModel
@@ -60,22 +39,22 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(signInViewModel: SignInViewModel = koinViewModel(),
+fun SignInScreen(viewModel: SignInViewModel = koinViewModel(),
                  onSignUpButtonClicked: () -> Unit = {},
                  onSignInCompleted: () -> Unit = {}) {
     //se precargan los datos de sesión previa
-    signInViewModel.loadPreviousSession()
+    viewModel.loadPreviousSession()
 
     //se observa el estado de carga
-    val uiState by signInViewModel.uiStateData.collectAsState()
+    val uiState by viewModel.uiStateData.collectAsState()
 
     //se observan los errores de validación
-    val userError by signInViewModel.userErrorData.observeAsState(null)
-    val passwordError by signInViewModel.passwordErrorData.observeAsState(null)
+    val userError by viewModel.userErrorData.observeAsState(null)
+    val passwordError by viewModel.passwordErrorData.observeAsState(null)
 
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        Box(Modifier.padding(innerPadding)) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -83,25 +62,27 @@ fun SignInScreen(signInViewModel: SignInViewModel = koinViewModel(),
             ) {
                 //cabecera
                 Header(
-                    withPreviousSession = signInViewModel.withPreviousSession,
-                    previousUserName = signInViewModel.previousUserName
+                    withPreviousSession = viewModel.withPreviousSession,
+                    previousUserName = viewModel.previousUserName
                 )
                 //campos de ingreso
                 InputFields(
-                    withPreviousUser = signInViewModel.withPreviousSession,
-                    user = signInViewModel.inputUser,
-                    onUserChanged = { signInViewModel.updateUser(it) },
-                    password = signInViewModel.inputPassword,
-                    onPasswordChanged = { signInViewModel.updatePassword(it) },
+                    withPreviousUser = viewModel.withPreviousSession,
+                    user = viewModel.inputUser,
+                    onUserChanged = { viewModel.updateUser(it) },
+                    password = viewModel.inputPassword,
+                    onPasswordChanged = { viewModel.updatePassword(it) },
                     userError = userError,
                     passwordError = passwordError,
                     uiEnabled = uiState.uiEnabled
                 ) {
-                    signInViewModel.login()
+                    viewModel.login()
                 }
                 LabelText(R.string.login_label_noaccount, 36)
                 //botón de registro
-                TextButton(onClick = onSignUpButtonClicked) {
+                TextButton(
+                    onClick = onSignUpButtonClicked,
+                    modifier = Modifier.padding(0.dp,8.dp,0.dp,0.dp)) {
                     Text(stringResource(R.string.login_action_register))
                 }
             }
@@ -124,12 +105,11 @@ fun SignInScreen(signInViewModel: SignInViewModel = koinViewModel(),
 
 @Composable
 fun Header(withPreviousSession: Boolean, previousUserName: String?){
-    TitleText(R.string.login_title)
-    if(withPreviousSession && previousUserName != null) {
-        SubtitleText(stringResource(R.string.login_label_welcomeback, previousUserName))
-        Spacer(modifier = Modifier.height(28.dp))
-    } else
-        SubtitleText(R.string.login_label_subtitle)
+    HeaderText(R.string.login_title)
+    if(withPreviousSession && previousUserName != null)
+        TitleText(stringResource(R.string.login_label_welcomeback, previousUserName))
+    else
+        TitleText(R.string.login_label_subtitle)
 }
 
 @Composable
@@ -142,86 +122,24 @@ fun InputFields(withPreviousUser: Boolean,
                 passwordError: String?,
                 uiEnabled: Boolean,
                 onSubmitUser: () -> Unit){
-    //al tener una sesión iniciada no se requiere mostrar el campo para correo
+    //solo se muestra el campo para correo si no hay una sesión previa
     if(!withPreviousUser)
         EmailInputField(
+            labelId = R.string.login_field_user,
             email = user,
             onEmailChanged = onUserChanged,
-            errorMessage = userError)
+            errorMessage = userError,
+            paddingTop = 40)
     PasswordInputField(
         password = password,
         onPasswordChanged = onPasswordChanged,
         onKeyboardDone = onSubmitUser,
-        errorMessage = passwordError
-    )
-    EnterButton(uiEnabled, onSubmitUser)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PasswordInputField(password: String,
-                       onPasswordChanged: (String) -> Unit,
-                       onKeyboardDone: () -> Unit,
-                       errorMessage: String?) {
-    val focusManager = LocalFocusManager.current
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
-
-    OutlinedTextField(
-        value = password,
-        singleLine = true,
-        modifier = Modifier.padding(0.dp,12.dp,0.dp,0.dp),
-        onValueChange = onPasswordChanged,
-        label = { Text(stringResource(R.string.login_field_password)) },
-        //mensaje de error
-        isError = !errorMessage.isNullOrEmpty(),
-        supportingText = {
-            if (!errorMessage.isNullOrEmpty()) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        //fijar tipo de teclado a contraseña, ejecutar acción al finalizar ingreso de valores
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                onKeyboardDone()
-                focusManager.clearFocus()
-            }),
-        //icono para mostrar/ocultar contraseña
-        trailingIcon = {
-            val icon = if(passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-            val description = stringResource(
-                if (passwordVisible) R.string.login_cd_hidepassword else R.string.login_cd_showpassword)
-            IconButton(onClick = { passwordVisible = !passwordVisible }){
-                Icon(icon, description)
-            }
-        },
-        visualTransformation =
-        if(passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun EnterButton(enabled: Boolean = true, onSubmitUser: () -> Unit){
-    var innerEnabled by rememberSaveable { mutableStateOf(true) }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    ElevatedButton(
-        //para evitar el doble click accidental
-        enabled = innerEnabled || enabled,
-        modifier = Modifier.padding(0.dp,40.dp,0.dp,0.dp),
-        onClick = {
-            keyboardController?.hide()
-            innerEnabled = !innerEnabled
-            onSubmitUser()
-        }) {
-        Text(stringResource(R.string.login_action_enter))
-    }
+        errorMessage = passwordError,
+        paddingTop = if(withPreviousUser) 40 else 8)
+    ActionButton(
+        labelId = R.string.login_action_enter,
+        enabled = uiEnabled,
+        onButtonClicked = onSubmitUser)
 }
 
 @Preview(showBackground = true, name = "Light")

@@ -9,7 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.simplebankingapp_storitest.presentation.ui.screens.HomeScreen
 import com.example.simplebankingapp_storitest.presentation.ui.screens.SignInScreen
-import com.example.simplebankingapp_storitest.presentation.ui.screens.SignUpScreen
+import com.example.simplebankingapp_storitest.presentation.ui.screens.SignUpPhotoIdScreen
+import com.example.simplebankingapp_storitest.presentation.ui.screens.SignUpUserInfoScreen
 import com.example.simplebankingapp_storitest.presentation.ui.theme.SimpleBankingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -20,21 +21,37 @@ fun MainCompose(){
         //mapa de navegación
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = AppScreens.SignIn.name){
+            //inicio de sesión
             composable(AppScreens.SignIn.name){
                 SignInScreen(
-                    onSignUpButtonClicked = { navController.navigate(AppScreens.SingUp.name) },
+                    onSignUpButtonClicked = { navController.navigate(AppScreens.SignUpUserInfo.name) },
                     onSignInCompleted = { navController.navigate(AppScreens.Home.name) })
             }
-            composable(AppScreens.Home.name){ HomeScreen(onExitApp = { activity?.finish() }) }
-            composable(AppScreens.SingUp.name){
-                SignUpScreen(onNavigateUp = { navController.navigateUp() })
+            //registro
+            composable(AppScreens.SignUpUserInfo.name){
+                SignUpUserInfoScreen(
+                    onNavigateUp = { navController.navigateUp() },
+                    onInfoSaved = { navController.navigate(AppScreens.SignUpPhotoId.name) })
             }
+            composable(AppScreens.SignUpPhotoId.name){
+                SignUpPhotoIdScreen(
+                    onNavigateUp = {
+                        navController.navigate(AppScreens.SignIn.name) {
+                            popUpTo(AppScreens.SignIn.name){ inclusive = true }
+                        }
+                    },
+                    onPhotoTaken = { navController.navigate(AppScreens.SignUpUploadInfo.name) })
+            }
+            //pantalla principal
+            composable(AppScreens.Home.name){ HomeScreen(onExitApp = { activity?.finish() }) }
         }
     }
 }
 
 enum class AppScreens {
     SignIn,
-    SingUp,
+    SignUpUserInfo,
+    SignUpPhotoId,
+    SignUpUploadInfo,
     Home
 }

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,8 +28,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,22 +45,22 @@ import com.example.simplebankingapp_storitest.presentation.ui.theme.BackgroundLo
 
 //etiquetas
 @Composable
-fun TitleText(text: String){
+fun HeaderText(text: String){
     Text(
         text = text,
-        fontSize = 30.sp,
+        fontSize = 32.sp,
         color = MaterialTheme.colorScheme.primary)
 }
 @Composable
-fun TitleText(@StringRes textId: Int){
+fun HeaderText(@StringRes textId: Int){
     Text(
         text = stringResource(textId),
-        fontSize = 30.sp,
+        fontSize = 32.sp,
         color = MaterialTheme.colorScheme.primary)
 }
 
 @Composable
-fun SubtitleText(text: String, paddingTop: Int = 12){
+fun TitleText(text: String, paddingTop: Int = 12){
     Text(
         modifier = Modifier.padding(0.dp,paddingTop.dp,0.dp,0.dp),
         text = text,
@@ -65,7 +68,7 @@ fun SubtitleText(text: String, paddingTop: Int = 12){
         fontSize = 22.sp)
 }
 @Composable
-fun SubtitleText(@StringRes textId: Int, paddingTop: Int = 12){
+fun TitleText(@StringRes textId: Int, paddingTop: Int = 12){
     Text(
         modifier = Modifier.padding(0.dp,paddingTop.dp,0.dp,0.dp),
         text = stringResource(textId),
@@ -84,15 +87,18 @@ fun LabelText(@StringRes textId: Int, marginTop: Int = 12){
 //campos de entrada
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NameInputField(name: String,
+fun NameInputField(modifier: Modifier = Modifier,
+                   @StringRes labelId: Int,
+                   name: String,
                    onNameChanged: (String) -> Unit,
-                   errorMessage: String?) {
+                   errorMessage: String? = null,
+                   paddingTop: Int = 8) {
     OutlinedTextField(
         value = name,
         singleLine = true,
-        modifier = Modifier.padding(0.dp,40.dp,0.dp,0.dp),
+        modifier = Modifier.padding(0.dp,paddingTop.dp,0.dp,0.dp).then(modifier),
         onValueChange = onNameChanged,
-        label = { Text(stringResource(R.string.login_field_user)) },
+        label = { Text(stringResource(labelId)) },
         //mensaje de error
         isError = !errorMessage.isNullOrEmpty(),
         supportingText = {
@@ -112,15 +118,18 @@ fun NameInputField(name: String,
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmailInputField(email: String,
+fun EmailInputField(modifier: Modifier = Modifier,
+                    @StringRes labelId: Int = R.string.generic_field_email,
+                    email: String,
                     onEmailChanged: (String) -> Unit,
-                    errorMessage: String?) {
+                    errorMessage: String? = null,
+                    paddingTop: Int = 8) {
     OutlinedTextField(
         value = email,
         singleLine = true,
-        modifier = Modifier.padding(0.dp,40.dp,0.dp,0.dp),
+        modifier = Modifier.padding(0.dp,paddingTop.dp,0.dp,0.dp).then(modifier),
         onValueChange = onEmailChanged,
-        label = { Text(stringResource(R.string.login_field_user)) },
+        label = { Text(stringResource(labelId)) },
         //mensaje de error
         isError = !errorMessage.isNullOrEmpty(),
         supportingText = {
@@ -140,19 +149,24 @@ fun EmailInputField(email: String,
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordInputField(password: String,
+fun PasswordInputField(modifier: Modifier = Modifier,
+                       @StringRes labelId: Int = R.string.generic_field_password,
+                       canShowPassword: Boolean = true,
+                       password: String,
                        onPasswordChanged: (String) -> Unit,
-                       onKeyboardDone: () -> Unit,
-                       errorMessage: String?) {
+                       isFinalField: Boolean = true,
+                       onKeyboardDone: () -> Unit = {},
+                       errorMessage: String? = null,
+                       paddingTop: Int = 8) {
     val focusManager = LocalFocusManager.current
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     OutlinedTextField(
         value = password,
         singleLine = true,
-        modifier = Modifier.padding(0.dp,12.dp,0.dp,0.dp),
+        modifier = Modifier.padding(0.dp,paddingTop.dp,0.dp,0.dp).then(modifier),
         onValueChange = onPasswordChanged,
-        label = { Text(stringResource(R.string.login_field_password)) },
+        label = { Text(stringResource(labelId)) },
         //mensaje de error
         isError = !errorMessage.isNullOrEmpty(),
         supportingText = {
@@ -166,7 +180,8 @@ fun PasswordInputField(password: String,
         },
         //fijar tipo de teclado a contraseña, ejecutar acción al finalizar ingreso de valores
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+            keyboardType = KeyboardType.Password,
+            imeAction = if(isFinalField) ImeAction.Done else ImeAction.Next),
         keyboardActions = KeyboardActions(
             onDone = {
                 onKeyboardDone()
@@ -174,16 +189,44 @@ fun PasswordInputField(password: String,
             }),
         //icono para mostrar/ocultar contraseña
         trailingIcon = {
-            val icon = if(passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-            val description = stringResource(
-                if (passwordVisible) R.string.login_cd_hidepassword else R.string.login_cd_showpassword)
-            IconButton(onClick = { passwordVisible = !passwordVisible }){
-                Icon(icon, description)
+            if(canShowPassword) {
+                val icon =
+                    if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                val description = stringResource(
+                    if (passwordVisible) R.string.generic_cd_hidepassword else R.string.generic_cd_showpassword
+                )
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(icon, description)
+                }
             }
         },
-        visualTransformation = if(passwordVisible)
+        visualTransformation = if(passwordVisible && canShowPassword)
             VisualTransformation.None else PasswordVisualTransformation()
     )
+}
+
+//botones de acción
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ActionButton(modifier: Modifier = Modifier,
+                 @StringRes labelId: Int,
+                 enabled: Boolean = true,
+                 onButtonClicked: () -> Unit,
+                 padddingTop: Int = 40){
+    var innerEnabled by rememberSaveable { mutableStateOf(true) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    ElevatedButton(
+        //para evitar el doble click accidental
+        enabled = innerEnabled || enabled,
+        modifier = Modifier.padding(0.dp,padddingTop.dp,0.dp,0.dp).then(modifier),
+        onClick = {
+            keyboardController?.hide()
+            innerEnabled = !innerEnabled
+            onButtonClicked()
+        }) {
+        Text(stringResource(labelId))
+    }
 }
 
 //elementos complejos

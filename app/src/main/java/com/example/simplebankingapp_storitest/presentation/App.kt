@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import com.example.simplebankingapp_storitest.data.dataModule
 import com.example.simplebankingapp_storitest.data.homeModule
 import com.example.simplebankingapp_storitest.data.loginModule
+import com.example.simplebankingapp_storitest.data.registrationModule
 import com.example.simplebankingapp_storitest.data.userInfoModule
 import com.example.simplebankingapp_storitest.data.utils.PreferenceComponent_LocalPreferences
 import com.google.firebase.database.ktx.database
@@ -31,7 +32,7 @@ class App: Application() {
         //Inicialización de Koin
         startKoin {
             androidContext(this@App)
-            modules(listOf(dataModule, userInfoModule, loginModule, homeModule))
+            modules(listOf(dataModule, userInfoModule, loginModule, registrationModule, homeModule))
         }
     }
 
