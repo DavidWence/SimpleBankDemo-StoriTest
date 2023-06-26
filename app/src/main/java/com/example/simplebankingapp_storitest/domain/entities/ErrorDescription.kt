@@ -1,8 +1,9 @@
 package com.example.simplebankingapp_storitest.domain.entities
 
 sealed class ErrorDescription {
-    //error genérico
+    //errores genéricos
     object UnknownError: ErrorDescription()
+    object MissingValueError: ErrorDescription()
 
     //Errores de formato
     //el email está vacío

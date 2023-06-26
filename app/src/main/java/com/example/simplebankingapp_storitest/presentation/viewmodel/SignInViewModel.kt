@@ -1,43 +1,70 @@
 package com.example.simplebankingapp_storitest.presentation.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.simplebankingapp_storitest.domain.entities.Outcome
 import com.example.simplebankingapp_storitest.domain.entities.areAllOutcomesValids
+import com.example.simplebankingapp_storitest.domain.usecases.configuration.GetPreviousSession
+import com.example.simplebankingapp_storitest.domain.usecases.user.GetEmail
+import com.example.simplebankingapp_storitest.domain.usecases.user.GetName
 import com.example.simplebankingapp_storitest.domain.usecases.user.SignIn
 import com.example.simplebankingapp_storitest.domain.usecases.userinfo.ValidateEmail
 import com.example.simplebankingapp_storitest.domain.usecases.userinfo.ValidatePassword
-import com.example.simplebankingapp_storitest.presentation.utils.ProcessStep
+import com.example.simplebankingapp_storitest.presentation.utils.UiState
 import kotlinx.coroutines.launch
 
-class SignInViewModel(private val validateEmailUseCase: ValidateEmail,
+class SignInViewModel(private val getPreviousSessionUseCase: GetPreviousSession,
+                      private val getNameUseCase: GetName,
+                      private val getEmailUseCase: GetEmail,
+                      private val validateEmailUseCase: ValidateEmail,
                       private val validatePasswordUseCase: ValidatePassword,
                       private val signInUseCase: SignIn):
     SimpleProcessViewModel() {
 
-    private var user = ""
-    private var password = ""
+    //con sesión previa
+    private var _withPreviousSession = false
+    val withPreviousSession: Boolean get() = _withPreviousSession
+    //datos de la sesión anterior
+    private var _previousUserName: String? = null
+    val previousUserName: String? get() = _previousUserName
 
+    //credenciales del usuario
+    var inputUser by mutableStateOf("")
+        private set
+    var inputPassword by mutableStateOf("")
+        private set
+
+    //errores de validación
     private val userError = MutableLiveData<String?>()
     val userErrorData: LiveData<String?> get() = userError
-
     private val passwordError = MutableLiveData<String?>()
     val passwordErrorData: LiveData<String?> get() = passwordError
 
-    fun updateUser(inputUser: String){
-        user = inputUser
+    fun loadPreviousSession(){
+        _withPreviousSession = getPreviousSessionUseCase().value ?: false
+        _previousUserName = getNameUseCase().value
+        viewModelScope.launch {
+            inputUser = getEmailUseCase().value ?: ""
+        }
     }
 
-    fun updatePassword(inputPassword: String){
-        password = inputPassword
+    fun updateUser(user: String){
+        inputUser = user
+    }
+
+    fun updatePassword(password: String){
+        inputPassword = password
     }
 
     fun login(){
         //se empiezan evaluando las precondiciones
-        step.value = ProcessStep.Preconditions
-        val validEmail = validateEmailUseCase(user)
-        val validPassword = validatePasswordUseCase(password)
+        uiState.value = UiState.EvaluatingPreconditions
+        val validEmail = validateEmailUseCase(inputUser)
+        val validPassword = validatePasswordUseCase(inputPassword)
         //se muestran o quitan los errores según sea necesario
         userError.value =
             if(validEmail is Outcome.Error) validEmail.description.asText() else null
@@ -46,14 +73,13 @@ class SignInViewModel(private val validateEmailUseCase: ValidateEmail,
 
         //se continúa con el inicio de sesión solo si todas las precondiciones son válidas
         if(!areAllOutcomesValids(validEmail, validPassword))
-            step.value = ProcessStep.PreconditionsError()
+            uiState.value = UiState.PreconditionsError()
         else {
+            uiState.value = UiState.Loading
             viewModelScope.launch {
-                step.value = ProcessStep.Loading()
-                when (val result = signInUseCase(user, password)) {
-                    is Outcome.Error -> step.value = ProcessStep.Error(result.description.asText())
-                    else ->
-                        step.value = ProcessStep.Finished
+                when (val result = signInUseCase(inputUser, inputPassword)) {
+                    is Outcome.Error -> uiState.value = UiState.Error(result.description.asText())
+                    else -> uiState.value = UiState.Finished
                 }
             }
         }

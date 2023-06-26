@@ -3,6 +3,7 @@
 package com.example.simplebankingapp_storitest.presentation.ui.screens
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,7 +24,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -41,18 +41,18 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel(),
-               drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)) {
+               drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
+               onExitApp: () -> Unit = {}) {
     //se observan los datos de la cuenta
     val balance = homeViewModel.balanceData.observeAsState()
+    val fullName = homeViewModel.fullNameData.observeAsState()
+    val email = homeViewModel.emailData.observeAsState()
 
-    //se cargan los datos iniciales
-    LaunchedEffect(Unit){
-        homeViewModel.loadInitialInfo()
-    }
+    homeViewModel.loadInitialInfo()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = { HomeDrawer() }) {
+        drawerContent = { HomeDrawer(fullName.value ?: "-", email.value ?: "-") }) {
         Scaffold(topBar = { HomeAppBar(drawerState = drawerState) }) { paddingValues ->
             Surface(
                 modifier = Modifier
@@ -68,6 +68,15 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel(),
                 }
             }
         }
+    }
+
+    //se maneja el evento de "back" para cerrar el drawer o salir de la app
+    val scope = rememberCoroutineScope()
+    BackHandler(enabled = true) {
+        if(drawerState.isOpen)
+            scope.launch { drawerState.close() }
+        else
+            onExitApp()
     }
 }
 
@@ -90,9 +99,12 @@ fun HomeAppBar(drawerState: DrawerState){
 }
 
 @Composable
-fun HomeDrawer(){
+fun HomeDrawer(fullName: String, email: String){
     ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.background) {
-        Text("Hello World!")
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(fullName)
+            Text(email)
+        }
     }
 }
 

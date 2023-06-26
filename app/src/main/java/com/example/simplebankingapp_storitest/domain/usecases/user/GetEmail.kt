@@ -2,8 +2,8 @@ package com.example.simplebankingapp_storitest.domain.usecases.user
 
 import com.example.simplebankingapp_storitest.domain.repositories.UserInfoRepository
 
-class GetBalance(private val repository: UserInfoRepository) {
+class GetEmail(private val repository: UserInfoRepository) {
 
-    suspend operator fun invoke() = repository.getBalance()
+    operator fun invoke() = repository.getEmail()
 
 }

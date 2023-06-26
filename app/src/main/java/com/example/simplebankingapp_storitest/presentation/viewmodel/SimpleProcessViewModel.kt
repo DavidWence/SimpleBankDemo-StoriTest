@@ -1,16 +1,16 @@
 package com.example.simplebankingapp_storitest.presentation.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simplebankingapp_storitest.presentation.utils.ProcessStep
+import com.example.simplebankingapp_storitest.presentation.utils.UiState
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 abstract class SimpleProcessViewModel: ViewModel() {
 
-    protected val step = MutableLiveData<ProcessStep>()
-    val stepData: LiveData<ProcessStep> get() = step
+    protected val uiState = MutableStateFlow<UiState>(UiState.Idle)
+    val uiStateData: StateFlow<UiState> get() = uiState
 
     //para limpiar cualquier proceso dependiente
     override fun onCleared() {

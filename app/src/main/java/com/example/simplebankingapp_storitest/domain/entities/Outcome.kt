@@ -17,6 +17,11 @@ fun <T> T?.asOutcome(descriptionIfError: ErrorDescription = ErrorDescription.Unk
         Outcome.Error(descriptionIfError)
 }
 
+inline fun outcomeCompleted(f: () -> Unit): Outcome<Nothing> {
+    f()
+    return Outcome.Completed
+}
+
 fun areAllOutcomesValids(vararg outcomes: Outcome<Any>): Boolean {
     for (outcome in outcomes)
         if (outcome is Outcome.Error)

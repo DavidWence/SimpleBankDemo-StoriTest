@@ -5,6 +5,10 @@ import androidx.annotation.StringRes
 import com.example.simplebankingapp_storitest.data.dataModule
 import com.example.simplebankingapp_storitest.data.homeModule
 import com.example.simplebankingapp_storitest.data.loginModule
+import com.example.simplebankingapp_storitest.data.userInfoModule
+import com.example.simplebankingapp_storitest.data.utils.PreferenceComponent_LocalPreferences
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -20,10 +24,14 @@ class App: Application() {
         super.onCreate()
         instance = this
 
-        //koin
+        //Inicialización de PreferenceRoom
+        PreferenceComponent_LocalPreferences.init(this)
+        //Preconfiguración de Firebase Realtime Database
+        Firebase.database.setPersistenceEnabled(true)
+        //Inicialización de Koin
         startKoin {
             androidContext(this@App)
-            modules(listOf(dataModule, loginModule, homeModule))
+            modules(listOf(dataModule, userInfoModule, loginModule, homeModule))
         }
     }
 

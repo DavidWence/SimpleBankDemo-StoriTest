@@ -7,6 +7,7 @@ import com.example.simplebankingapp_storitest.presentation.App
 fun ErrorDescription.asText(): String =
     when(this){
         ErrorDescription.UnknownError -> App.getString(R.string.error_generic)
+        ErrorDescription.MissingValueError -> App.getString(R.string.error_missingvalue)
         ErrorDescription.EmailEmpty -> App.getString(R.string.error_noemail)
         ErrorDescription.EmailRegexMismatch -> App.getString(R.string.error_invalidemail)
         ErrorDescription.PasswordEmpty -> App.getString(R.string.error_nopassword)
