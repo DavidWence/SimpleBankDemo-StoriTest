@@ -49,8 +49,25 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),
     val fullName by viewModel.fullNameData.observeAsState("")
     val email by viewModel.emailData.observeAsState("")
 
+    //se renderiza la información estática
     viewModel.loadInitialInfo()
+    HomeContent(fullName = fullName, email = email, balance = balance.value, drawerState)
 
+    //se maneja el evento de "back" para cerrar el drawer o salir de la app
+    val scope = rememberCoroutineScope()
+    BackHandler(enabled = true) {
+        if(drawerState.isOpen)
+            scope.launch { drawerState.close() }
+        else
+            onExitApp()
+    }
+}
+
+@Composable
+fun HomeContent(fullName: String,
+                email: String,
+                balance: Double?,
+                drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)){
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = { HomeDrawer(fullName, email) }) {
@@ -65,19 +82,10 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(),
                         .fillMaxSize()
                         .padding(16.dp)) {
                     TitleText(R.string.home_label_balance, paddingTop = 8)
-                    HeaderText(balance.value?.asCurrency() ?: "-")
+                    HeaderText(balance?.asCurrency() ?: "-")
                 }
             }
         }
-    }
-
-    //se maneja el evento de "back" para cerrar el drawer o salir de la app
-    val scope = rememberCoroutineScope()
-    BackHandler(enabled = true) {
-        if(drawerState.isOpen)
-            scope.launch { drawerState.close() }
-        else
-            onExitApp()
     }
 }
 
@@ -114,6 +122,15 @@ fun HomeDrawer(fullName: String, email: String){
 @Composable
 fun HomePreview() {
     SimpleBankingAppTheme {
-        HomeScreen()
+        HomeContent("David Wence", "davidwence@mail.com", 0.0)
+    }
+}
+
+@Preview(showBackground = true, name = "Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark")
+@Composable
+fun HomeWithDrawerPreview() {
+    SimpleBankingAppTheme {
+        HomeContent("David Wence", "davidwence@mail.com", 0.0, rememberDrawerState(initialValue = DrawerValue.Open))
     }
 }
