@@ -54,6 +54,50 @@ fun SignUpUserInfoScreen(viewModel: SignUpUserInfoViewModel = koinViewModel(),
     val passwordError by viewModel.passwordErrorData.observeAsState(null)
     val repeatPasswordError by viewModel.repeatPasswordErrorData.observeAsState(null)
 
+    //se renderiza la información
+    SignUpUserInfoContent(
+        uiState = uiState,
+        onNavigateUp = onNavigateUp,
+        name = viewModel.inputName,
+        onNameChanged = { viewModel.updateName(it) },
+        nameError = nameError,
+        surname = viewModel.inputSurname,
+        onSurnameChanged = { viewModel.updateSurname(it) },
+        surnameError = surnameError,
+        email = viewModel.inputEmail,
+        onEmailChanged = { viewModel.updateEmail(it) },
+        emailError = emailError,
+        password = viewModel.inputPassword,
+        onPasswordChanged = { viewModel.updatePassword(it) },
+        passwordError = passwordError,
+        repeatPassword = viewModel.inputRepeatPassword,
+        onRepeatPasswordChanged = { viewModel.updateRepeatPassword(it) },
+        repeatPasswordError = repeatPasswordError,
+        saveInfo = { viewModel.saveInfo() },
+        onInfoSaved = onInfoSaved)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SignUpUserInfoContent(uiState: UiState,
+                          onNavigateUp: () -> Unit = {},
+                          name: String = "",
+                          onNameChanged: (String) -> Unit = {},
+                          nameError: String? = null,
+                          surname: String = "",
+                          onSurnameChanged: (String) -> Unit = {},
+                          surnameError: String? = null,
+                          email: String = "",
+                          onEmailChanged: (String) -> Unit = {},
+                          emailError: String? = null,
+                          password: String = "",
+                          onPasswordChanged: (String) -> Unit = {},
+                          passwordError: String? = null,
+                          repeatPassword: String = "",
+                          onRepeatPasswordChanged: (String) -> Unit = {},
+                          repeatPasswordError: String? = null,
+                          saveInfo: () -> Unit = {},
+                          onInfoSaved: () -> Unit = {}) {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         topBar = { NavigateUpAppBar(onNavigateUp) },
@@ -70,39 +114,39 @@ fun SignUpUserInfoScreen(viewModel: SignUpUserInfoViewModel = koinViewModel(),
                 NameInputField(
                     modifier = Modifier.fillMaxWidth(),
                     labelId = R.string.signup_field_name,
-                    name = viewModel.inputName,
-                    onNameChanged = { viewModel.updateName(it) },
+                    name = name,
+                    onNameChanged = onNameChanged,
                     errorMessage = nameError,
                     paddingTop = 24)
                 NameInputField(
                     modifier = Modifier.fillMaxWidth(),
                     labelId = R.string.signup_field_surname,
-                    name = viewModel.inputSurname,
-                    onNameChanged = { viewModel.updateSurname(it) },
+                    name = surname,
+                    onNameChanged = onSurnameChanged,
                     errorMessage = surnameError)
                 EmailInputField(
                     modifier = Modifier.fillMaxWidth(),
-                    email = viewModel.inputEmail,
-                    onEmailChanged = { viewModel.updateEmail(it) },
+                    email = email,
+                    onEmailChanged = onEmailChanged,
                     errorMessage = emailError)
                 PasswordInputField(
                     modifier = Modifier.fillMaxWidth(),
                     canShowPassword = false,
-                    password = viewModel.inputPassword,
-                    onPasswordChanged = { viewModel.updatePassword(it) },
+                    password = password,
+                    onPasswordChanged = onPasswordChanged,
                     isFinalField = false,
                     errorMessage = passwordError)
                 PasswordInputField(
                     modifier = Modifier.fillMaxWidth(),
                     canShowPassword = false,
                     labelId = R.string.signup_field_repeatpassword,
-                    password = viewModel.inputRepeatPassword,
-                    onPasswordChanged = { viewModel.updateRepeatPassword(it) },
-                    onKeyboardDone = { viewModel.saveInfo() },
+                    password = repeatPassword,
+                    onPasswordChanged = onRepeatPasswordChanged,
+                    onKeyboardDone = saveInfo,
                     errorMessage = repeatPasswordError)
                 ActionButton(
                     labelId = R.string.generic_action_continue,
-                    onButtonClicked = { viewModel.saveInfo() },
+                    onButtonClicked = saveInfo,
                     modifier = Modifier.align(CenterHorizontally))
             }
             //se muestra la pantalla de carga sobre los demás elementos
@@ -114,19 +158,18 @@ fun SignUpUserInfoScreen(viewModel: SignUpUserInfoViewModel = koinViewModel(),
             //mostrar mensaje de error
             if(uiState is UiState.Error)
                 snackbarHostState.showSnackbar(
-                    message = (uiState as UiState.Error).message, duration = SnackbarDuration.Short)
+                    message = uiState.message, duration = SnackbarDuration.Short)
             //avanzar al home si se logra el inicio de sesión
             else if(uiState is UiState.Finished)
                 onInfoSaved()
         }
     }
 }
-
 @Preview(showBackground = true, name = "Light")
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark")
 @Composable
 fun SignUpUserInfoPreview() {
     SimpleBankingAppTheme {
-        SignUpUserInfoScreen()
+        SignUpUserInfoContent(UiState.Idle)
     }
 }

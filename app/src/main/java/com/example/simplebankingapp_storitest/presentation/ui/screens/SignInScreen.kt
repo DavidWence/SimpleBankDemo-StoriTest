@@ -50,7 +50,8 @@ fun SignInScreen(viewModel: SignInViewModel = koinViewModel(),
     //se observan los errores de validación
     val userError by viewModel.userErrorData.observeAsState(null)
     val passwordError by viewModel.passwordErrorData.observeAsState(null)
-    
+
+    //se renderiza la información
     SignInContent(
         uiState,
         withPreviousSession = viewModel.withPreviousSession,
@@ -139,7 +140,7 @@ fun SignInContent(uiState: UiState = UiState.Idle,
     }
 }
 
-@Preview(showBackground = true, name = "Light")
+@Preview(showBackground = true, name = "Light", group = "Holo")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dark")
 @Composable
 fun SignInPreview() {
@@ -148,7 +149,7 @@ fun SignInPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Light")
+@Preview(showBackground = true, name = "Light", group = "Holo")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dark")
 @Composable
 fun SignInWithPreviousUserPreview() {
@@ -157,7 +158,7 @@ fun SignInWithPreviousUserPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Light")
+@Preview(showBackground = true, name = "Light", group = "Holo")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dark")
 @Composable
 fun SignInLoadingPreview() {
