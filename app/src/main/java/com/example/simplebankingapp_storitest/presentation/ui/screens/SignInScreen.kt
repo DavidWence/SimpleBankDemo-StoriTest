@@ -37,7 +37,6 @@ import com.example.simplebankingapp_storitest.presentation.utils.UiState
 import com.example.simplebankingapp_storitest.presentation.viewmodel.SignInViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(viewModel: SignInViewModel = koinViewModel(),
                  onSignUpButtonClicked: () -> Unit = {},
@@ -51,7 +50,36 @@ fun SignInScreen(viewModel: SignInViewModel = koinViewModel(),
     //se observan los errores de validación
     val userError by viewModel.userErrorData.observeAsState(null)
     val passwordError by viewModel.passwordErrorData.observeAsState(null)
+    
+    SignInContent(
+        uiState,
+        withPreviousSession = viewModel.withPreviousSession,
+        previousUserName = viewModel.previousUserName,
+        onSubmitUser = { viewModel.login() },
+        user = viewModel.inputUser,
+        onUserChanged = { viewModel.updateUser(it) },
+        userError = userError,
+        password = viewModel.inputPassword,
+        onPasswordChanged = { viewModel.updatePassword(it) },
+        passwordError = passwordError,
+        onSignUpButtonClicked = onSignUpButtonClicked,
+        onSignInCompleted = onSignInCompleted)
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SignInContent(uiState: UiState = UiState.Idle,
+                  withPreviousSession: Boolean = false,
+                  previousUserName: String? = null,
+                  onSubmitUser: () -> Unit = {},
+                  user: String = "",
+                  onUserChanged: (String) -> Unit = {},
+                  userError: String? = null,
+                  password: String = "",
+                  onPasswordChanged: (String) -> Unit = {},
+                  passwordError: String? = null,
+                  onSignUpButtonClicked: () -> Unit = {},
+                  onSignInCompleted: () -> Unit = {}){
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerPadding ->
         Box(Modifier.padding(innerPadding)) {
@@ -61,25 +89,33 @@ fun SignInScreen(viewModel: SignInViewModel = koinViewModel(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 //cabecera
-                Header(
-                    withPreviousSession = viewModel.withPreviousSession,
-                    previousUserName = viewModel.previousUserName
-                )
+                HeaderText(R.string.login_title)
+                if(withPreviousSession && previousUserName != null)
+                    TitleText(stringResource(R.string.login_label_welcomeback, previousUserName))
+                else
+                    TitleText(R.string.login_label_subtitle)
+
                 //campos de ingreso
-                InputFields(
-                    withPreviousUser = viewModel.withPreviousSession,
-                    user = viewModel.inputUser,
-                    onUserChanged = { viewModel.updateUser(it) },
-                    password = viewModel.inputPassword,
-                    onPasswordChanged = { viewModel.updatePassword(it) },
-                    userError = userError,
-                    passwordError = passwordError,
-                    uiEnabled = uiState.uiEnabled
-                ) {
-                    viewModel.login()
-                }
+                if(!withPreviousSession)
+                    EmailInputField(
+                        labelId = R.string.login_field_user,
+                        email = user,
+                        onEmailChanged = onUserChanged,
+                        errorMessage = userError,
+                        paddingTop = 40)
+                PasswordInputField(
+                    password = password,
+                    onPasswordChanged = onPasswordChanged,
+                    onKeyboardDone = onSubmitUser,
+                    errorMessage = passwordError,
+                    paddingTop = if(withPreviousSession) 40 else 8)
+                ActionButton(
+                    labelId = R.string.login_action_enter,
+                    enabled = uiState.uiEnabled,
+                    onButtonClicked = onSubmitUser)
+
+                //registro
                 LabelText(R.string.login_label_noaccount, 36)
-                //botón de registro
                 TextButton(
                     onClick = onSignUpButtonClicked,
                     modifier = Modifier.padding(0.dp,8.dp,0.dp,0.dp)) {
@@ -95,7 +131,7 @@ fun SignInScreen(viewModel: SignInViewModel = koinViewModel(),
             //mostrar mensaje de error
             if(uiState is UiState.Error)
                 snackbarHostState.showSnackbar(
-                    message = (uiState as UiState.Error).message, duration = SnackbarDuration.Short)
+                    message = uiState.message, duration = SnackbarDuration.Short)
             //avanzar al home si se logra el inicio de sesión
             else if(uiState is UiState.Finished)
                 onSignInCompleted()
@@ -103,50 +139,29 @@ fun SignInScreen(viewModel: SignInViewModel = koinViewModel(),
     }
 }
 
-@Composable
-fun Header(withPreviousSession: Boolean, previousUserName: String?){
-    HeaderText(R.string.login_title)
-    if(withPreviousSession && previousUserName != null)
-        TitleText(stringResource(R.string.login_label_welcomeback, previousUserName))
-    else
-        TitleText(R.string.login_label_subtitle)
-}
-
-@Composable
-fun InputFields(withPreviousUser: Boolean,
-                user: String,
-                onUserChanged: (String) -> Unit,
-                password: String,
-                onPasswordChanged: (String) -> Unit,
-                userError: String?,
-                passwordError: String?,
-                uiEnabled: Boolean,
-                onSubmitUser: () -> Unit){
-    //solo se muestra el campo para correo si no hay una sesión previa
-    if(!withPreviousUser)
-        EmailInputField(
-            labelId = R.string.login_field_user,
-            email = user,
-            onEmailChanged = onUserChanged,
-            errorMessage = userError,
-            paddingTop = 40)
-    PasswordInputField(
-        password = password,
-        onPasswordChanged = onPasswordChanged,
-        onKeyboardDone = onSubmitUser,
-        errorMessage = passwordError,
-        paddingTop = if(withPreviousUser) 40 else 8)
-    ActionButton(
-        labelId = R.string.login_action_enter,
-        enabled = uiEnabled,
-        onButtonClicked = onSubmitUser)
-}
-
 @Preview(showBackground = true, name = "Light")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dark")
 @Composable
 fun SignInPreview() {
     SimpleBankingAppTheme {
-        SignInScreen()
+        SignInContent()
+    }
+}
+
+@Preview(showBackground = true, name = "Light")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dark")
+@Composable
+fun SignInWithPreviousUserPreview() {
+    SimpleBankingAppTheme {
+        SignInContent(withPreviousSession = true, previousUserName = "David")
+    }
+}
+
+@Preview(showBackground = true, name = "Light")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dark")
+@Composable
+fun SignInLoadingPreview() {
+    SimpleBankingAppTheme {
+        SignInContent(uiState = UiState.Loading)
     }
 }
